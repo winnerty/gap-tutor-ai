@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+backend/app/__pycache__
+backend/app/.env
+frontend/node_modules
+*.db

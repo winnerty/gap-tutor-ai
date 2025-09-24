@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Account from "./pages/Account";
 import History from "./pages/History";
 import Dashboard from "./pages/Dashboard";
@@ -8,10 +8,11 @@ import Sidebar from "./components/Sidebar";
 function App() {
   return (
     <Router>
-      <div style={{ display: "flex" }}>
+      <div style={{ display: "flex", minHeight: "100vh" }}>
         <Sidebar />
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, padding: "20px" }}>
           <Routes>
+            <Route path="/" element={<Navigate to="/account" replace />} />
             <Route path="/account" element={<Account />} />
             <Route path="/history" element={<History />} />
             <Route path="/dashboard" element={<Dashboard />} />
