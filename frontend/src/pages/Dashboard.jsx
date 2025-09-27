@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
+import { generateQuizOnServer } from "../services/aiService";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -10,31 +11,39 @@ function Dashboard() {
     return saved
       ? JSON.parse(saved)
       : [
-          { name: "Biology", level: "Medium", recommendedQuiz: "Cell Structure" },
-          { name: "Python", level: "Low", recommendedQuiz: "Loops Basics" },
+          { name: "Mathematics — Algebra", level: "Medium" },
+          { name: "Python — Basics", level: "Low" },
         ];
   });
 
   const [newSubject, setNewSubject] = useState("");
-  const [newQuiz, setNewQuiz] = useState("");
+  const [newTopic, setNewTopic] = useState("");
 
   useEffect(() => {
     localStorage.setItem("subjects", JSON.stringify(subjects));
   }, [subjects]);
 
   const addSubject = () => {
-    if (!newSubject.trim()) return;
-    setSubjects([
-      ...subjects,
-      { name: newSubject, level: "Low", recommendedQuiz: newQuiz || "Introduction" },
-    ]);
+    if (!newSubject.trim() || !newTopic.trim()) return;
+    const fullName = `${newSubject} — ${newTopic}`;
+    setSubjects([...subjects, { name: fullName, level: "Unknown" }]);
     setNewSubject("");
-    setNewQuiz("");
+    setNewTopic("");
   };
 
   const removeSubject = (index) => {
     const updated = subjects.filter((_, i) => i !== index);
     setSubjects(updated);
+  };
+
+  const startQuiz = async (subject) => {
+    try {
+      const ai = await generateQuizOnServer(subject, 5);
+      navigate("/quiz", { state: { quiz: ai.questions, subject } });
+    } catch (e) {
+      console.error("AI generation failed:", e);
+      alert("⚠️ Failed to generate quiz. Try again.");
+    }
   };
 
   if (!token) {
@@ -53,7 +62,7 @@ function Dashboard() {
       <div style={{ marginBottom: 20 }}>
         <input
           type="text"
-          placeholder="Subject name"
+          placeholder="Subject (e.g. Mathematics)"
           value={newSubject}
           onChange={(e) => setNewSubject(e.target.value)}
           style={{
@@ -66,9 +75,9 @@ function Dashboard() {
         />
         <input
           type="text"
-          placeholder="Recommended quiz"
-          value={newQuiz}
-          onChange={(e) => setNewQuiz(e.target.value)}
+          placeholder="Topic (e.g. Trigonometry)"
+          value={newTopic}
+          onChange={(e) => setNewTopic(e.target.value)}
           style={{
             marginRight: 10,
             padding: "14px 16px",
@@ -93,51 +102,64 @@ function Dashboard() {
         </button>
       </div>
 
-      {subjects.map((s, index) => (
-        <div
-          key={index}
-          style={{
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            padding: "16px",
-            marginBottom: "12px",
-            backgroundColor: "white",
-            boxShadow: "0px 2px 6px rgba(0,0,0,0.05)",
-          }}
-        >
-          <h3>{s.name}</h3>
-          <p>Knowledge Level: {s.level}</p>
-          <p>Recommended Quiz: {s.recommendedQuiz}</p>
-          <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-            <button
-              onClick={() => navigate("/quiz")}
-              style={{
-                padding: "10px 16px",
-                borderRadius: "6px",
-                border: "none",
-                background: "#2563eb",
-                color: "white",
-                cursor: "pointer",
-              }}
-            >
-              Start
-            </button>
-            <button
-              onClick={() => removeSubject(index)}
-              style={{
-                padding: "10px 16px",
-                borderRadius: "6px",
-                border: "none",
-                background: "red",
-                color: "white",
-                cursor: "pointer",
-              }}
-            >
-              Delete
-            </button>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          gap: "16px",
+        }}
+      >
+        {subjects.map((s, index) => (
+          <div
+            key={index}
+            style={{
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+              padding: "16px",
+              backgroundColor: "white",
+              boxShadow: "0px 2px 6px rgba(0,0,0,0.05)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
+            <h3 style={{ marginBottom: "8px" }}>{s.name}</h3>
+            <p style={{ marginBottom: "16px" }}>
+              Knowledge Level: {s.level}
+            </p>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={() => startQuiz(s.name)}
+                style={{
+                  flex: 1,
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "none",
+                  background: "#2563eb",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
+                Start
+              </button>
+              <button
+                onClick={() => removeSubject(index)}
+                style={{
+                  flex: 1,
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "none",
+                  background: "red",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
+                Delete
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

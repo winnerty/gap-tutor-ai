@@ -1,50 +1,49 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import QuizCard from "../components/QuizCard";
 
 function Quiz() {
+  const location = useLocation();
   const navigate = useNavigate();
-
-  const quizQuestions = [
-    {
-      question: "What is the powerhouse of the cell?",
-      options: ["Nucleus", "Mitochondria", "Ribosome"],
-      answer: "Mitochondria",
-    },
-    {
-      question: "Which macromolecule stores genetic info?",
-      options: ["Carbohydrates", "DNA", "Lipids"],
-      answer: "DNA",
-    },
-  ];
+  const quizQuestions = location.state?.quiz || [];
+  const subject = location.state?.subject || "Unknown";
 
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
 
   const addToHistory = async (result) => {
-    const email = JSON.parse(atob(localStorage.getItem("token").split(".")[1])).sub; 
-    
-    await fetch("http://localhost:8000/history", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        subject: "Python",
-        score: result,
-      }),
-    });
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const email = JSON.parse(atob(token.split(".")[1])).sub;
+
+      await fetch("http://localhost:8000/history/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          subject,
+          score: result,
+        }),
+      });
+    } catch (e) {
+      console.error("Failed to save history:", e);
+    }
   };
 
   const handleAnswer = (selected) => {
-    if (selected === quizQuestions[current].answer) {
+    if (quizQuestions[current] && selected === quizQuestions[current].answer) {
       setScore((prev) => prev + 1);
     }
     if (current + 1 < quizQuestions.length) {
-      setCurrent(current + 1);
+      setCurrent((prev) => prev + 1);
     } else {
       setFinished(true);
-      addToHistory(score + (selected === quizQuestions[current].answer ? 1 : 0));
+      const finalScore =
+        score + (quizQuestions[current]?.answer === selected ? 1 : 0);
+      addToHistory(finalScore);
     }
   };
 
@@ -52,6 +51,17 @@ function Quiz() {
     addToHistory(score);
     navigate("/dashboard");
   };
+
+  if (quizQuestions.length === 0) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <h2>No quiz data available</h2>
+        <button onClick={() => navigate("/dashboard")}>
+          Back to Dashboard
+        </button>
+      </div>
+    );
+  }
 
   if (finished) {
     return (
@@ -86,8 +96,8 @@ function Quiz() {
     >
       <div style={{ textAlign: "center" }}>
         <QuizCard
-          question={quizQuestions[current].question}
-          options={quizQuestions[current].options}
+          question={quizQuestions[current]?.question || ""}
+          options={quizQuestions[current]?.options || []}
           onAnswer={handleAnswer}
         />
         <button
