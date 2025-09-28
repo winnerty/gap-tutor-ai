@@ -1,14 +1,37 @@
-function QuizCard({ question, options, onAnswer }) {
+function QuizCard({ question, options, answer, selected, showAnswer, onAnswer }) {
   return (
-    <div style={{ border: "1px solid #ddd", padding: "20px", marginBottom: "20px" }}>
+    <div>
       <h3>{question}</h3>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        {options.map((opt, index) => (
-          <button key={index} onClick={() => onAnswer(opt)}>
-            {opt}
+      {options.map((o, i) => {
+        let bg = "#eee";
+        if (showAnswer) {
+          if (o === answer) bg = "green";
+          else if (o === selected) bg = "red";
+        }
+        return (
+          <button
+            key={i}
+            onClick={() => !showAnswer && onAnswer(o)}
+            style={{
+              display: "block",
+              width: "100%",
+              margin: "8px 0",
+              padding: "10px",
+              background: bg,
+              color:
+                showAnswer && (o === answer || o === selected)
+                  ? "white"
+                  : "black",
+              border: "none",
+              borderRadius: "6px",
+              cursor: showAnswer ? "default" : "pointer",
+            }}
+          >
+            {o}
           </button>
-        ))}
-      </div>
+        );
+      })}
+      {showAnswer}
     </div>
   );
 }

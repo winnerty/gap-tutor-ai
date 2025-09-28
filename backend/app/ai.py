@@ -34,22 +34,13 @@ def generate_quiz(req: QuizRequest):
         raise HTTPException(status_code=500, detail="Model is not initialized")
     
     prompt = f"""
-    Return ONLY valid JSON. No text outside.
-
+    Return ONLY valid JSON. ULTIMATELY AND ABSOLUTELY follow the rules and format provided.
     Generate exactly 5 multiple-choice questions for "{req.subject}".
-
-    Rules for options:
-    - "options" must be an array of EXACTLY 3 separate strings.
-    - Each string must be a single option (do NOT join with commas in one string).
-    - Example of GOOD: ["2", "-2", "4"]
-    - Example of BAD: ["2, -2, 4"]
-
-    Each question must have:
+    Rules:
     - "question": string
     - "options": array of EXACTLY 3 separate strings
     - "answer": exactly one of the strings from "options"
-
-    Final format:
+    Format:
     {{
     "quiz": [
         {{

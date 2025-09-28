@@ -38,7 +38,7 @@ function Dashboard() {
 
   const startQuiz = async (subject) => {
     try {
-      const ai = await generateQuizOnServer(subject, 5);
+      const ai = await generateQuizOnServer(subject);
       navigate("/quiz", { state: { quiz: ai.questions, subject } });
     } catch (e) {
       console.error("AI generation failed:", e);

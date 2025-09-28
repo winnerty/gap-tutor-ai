@@ -1,8 +1,8 @@
-export async function generateQuizOnServer(subject, nQuestions = 3) {
+export async function generateQuizOnServer(subject) {
   const res = await fetch("http://localhost:8000/ai/generate_quiz", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ subject, n_questions: nQuestions }),
+    body: JSON.stringify({ subject }),
   });
 
   if (!res.ok) {

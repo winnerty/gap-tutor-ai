@@ -12,6 +12,9 @@ function Quiz() {
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
 
+  const [selected, setSelected] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+
   const addToHistory = async (result) => {
     try {
       const token = localStorage.getItem("token");
@@ -33,18 +36,24 @@ function Quiz() {
     }
   };
 
-  const handleAnswer = (selected) => {
-    if (quizQuestions[current] && selected === quizQuestions[current].answer) {
-      setScore((prev) => prev + 1);
-    }
-    if (current + 1 < quizQuestions.length) {
-      setCurrent((prev) => prev + 1);
-    } else {
-      setFinished(true);
-      const finalScore =
-        score + (quizQuestions[current]?.answer === selected ? 1 : 0);
-      addToHistory(finalScore);
-    }
+  const handleAnswer = (option) => {
+    setSelected(option);
+    setShowAnswer(true);
+
+    const isCorrect = option === quizQuestions[current]?.answer;
+    if (isCorrect) setScore((prev) => prev + 1);
+
+    setTimeout(() => {
+      setSelected(null);
+      setShowAnswer(false);
+      if (current + 1 < quizQuestions.length) {
+        setCurrent((prev) => prev + 1);
+      } else {
+        setFinished(true);
+        const finalScore = score + (isCorrect ? 1 : 0);
+        addToHistory(finalScore);
+      }
+    }, 1500);
   };
 
   const handleExit = () => {
@@ -84,6 +93,8 @@ function Quiz() {
     );
   }
 
+  const progress = ((current + 1) / quizQuestions.length) * 100;
+
   return (
     <div
       style={{
@@ -92,14 +103,43 @@ function Quiz() {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
+        width: "100%",
       }}
     >
-      <div style={{ textAlign: "center" }}>
+      <div style={{ width: "100%", maxWidth: "600px", textAlign: "center" }}>
+        <div style={{ marginBottom: "20px" }}>
+          <p>
+            Question {current + 1} out of {quizQuestions.length}
+          </p>
+          <div
+            style={{
+              height: "10px",
+              width: "100%",
+              background: "#eee",
+              borderRadius: "5px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: `${progress}%`,
+                background: "#2563eb",
+                transition: "width 0.3s ease",
+              }}
+            />
+          </div>
+        </div>
+
         <QuizCard
           question={quizQuestions[current]?.question || ""}
           options={quizQuestions[current]?.options || []}
+          answer={quizQuestions[current]?.answer}
+          selected={selected}
+          showAnswer={showAnswer}
           onAnswer={handleAnswer}
         />
+
         <button
           onClick={handleExit}
           style={{
