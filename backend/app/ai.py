@@ -55,15 +55,12 @@ def generate_quiz(req: QuizRequest):
     try:
         with model.chat_session():
             raw = model.generate(prompt, max_tokens=500, temp=0)
-            print("🔹 RAW OUTPUT:\n", raw)
 
         cleaned = clean_output(raw)
-        print("🔧 CLEANED OUTPUT:\n", cleaned)
 
         try:
             parsed = json.loads(cleaned)
         except json.JSONDecodeError as e:
-            print("JSON parse failed:", e)
             return {"topic": req.subject, "questions": []}
 
         questions = parsed.get("quiz", []) if isinstance(parsed, dict) else []
