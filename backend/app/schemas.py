@@ -1,10 +1,8 @@
 from pydantic import BaseModel, EmailStr, constr
 
 class SignupRequest(BaseModel):
-    #email: EmailStr
-    #password: constr(min_length=8)
-    email: str
-    password: str
+    email: EmailStr
+    password: constr(min_length=8)
 
 class HistoryCreate(BaseModel):
     email: str

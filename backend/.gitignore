@@ -1,3 +1,5 @@
 __pycache__/
 .env
 *.db
+app/upd.py
+app/del.py

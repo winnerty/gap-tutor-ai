@@ -8,8 +8,9 @@ function Dashboard() {
 
   const [subjects, setSubjects] = useState(() => {
     const saved = localStorage.getItem("subjects");
-    return JSON.parse(saved)
+    return JSON.parse(saved) || [];
   });
+  const [stats, setStats] = useState(null);
 
   const [newSubject, setNewSubject] = useState("");
   const [newTopic, setNewTopic] = useState("");
@@ -18,10 +19,28 @@ function Dashboard() {
     localStorage.setItem("subjects", JSON.stringify(subjects));
   }, [subjects]);
 
+  useEffect(() => {
+    const loadStats = async () => {
+      if (!token) return;
+      const email = JSON.parse(atob(token.split(".")[1])).sub;
+
+      try {
+        const res = await fetch(
+          `http://localhost:8000/history/stats?email=${email}`
+        );
+        const data = await res.json();
+        setStats(data);
+      } catch (e) {
+        console.error("Failed to load stats:", e);
+      }
+    };
+    loadStats();
+  }, [token]);
+
   const addSubject = () => {
     if (!newSubject.trim() || !newTopic.trim()) return;
     const fullName = `${newSubject} — ${newTopic}`;
-    setSubjects([...subjects, { name: fullName, level: "Unknown" }]);
+    setSubjects([...subjects, { name: fullName }]);
     setNewSubject("");
     setNewTopic("");
   };
@@ -33,12 +52,22 @@ function Dashboard() {
 
   const startQuiz = async (subject) => {
     try {
+      alert("Loading quiz... This may take up to 1 minute. Please wait.");
       const ai = await generateQuizOnServer(subject);
       navigate("/quiz", { state: { quiz: ai.questions, subject } });
     } catch (e) {
       console.error("AI generation failed:", e);
       alert("⚠️ Failed to generate quiz. Try again.");
     }
+  };
+
+  const getLevel = (subject) => {
+    if (!stats?.avg_scores) return "Unknown";
+    const avg = stats.avg_scores[subject];
+    if (avg === undefined) return "Unknown";
+    if (avg < 2) return "Beginner";
+    if (avg < 4) return "Intermediate";
+    return "Advanced";
   };
 
   if (!token) {
@@ -120,7 +149,7 @@ function Dashboard() {
           >
             <h3 style={{ marginBottom: "8px" }}>{s.name}</h3>
             <p style={{ marginBottom: "16px" }}>
-              Knowledge Level: {s.level}
+              Knowledge Level: {getLevel(s.name)}
             </p>
             <div style={{ display: "flex", gap: "10px" }}>
               <button

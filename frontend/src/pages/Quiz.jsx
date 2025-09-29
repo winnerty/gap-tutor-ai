@@ -11,7 +11,6 @@ function Quiz() {
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
-
   const [selected, setSelected] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
 
@@ -25,11 +24,7 @@ function Quiz() {
       await fetch("http://localhost:8000/history/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          subject,
-          score: result,
-        }),
+        body: JSON.stringify({ email, subject, score: result }),
       });
     } catch (e) {
       console.error("Failed to save history:", e);
@@ -40,12 +35,13 @@ function Quiz() {
     setSelected(option);
     setShowAnswer(true);
 
-    const isCorrect = option === quizQuestions[current]?.answer;
+    const isCorrect = option === quizQuestions[current].answer;
     if (isCorrect) setScore((prev) => prev + 1);
 
     setTimeout(() => {
       setSelected(null);
       setShowAnswer(false);
+
       if (current + 1 < quizQuestions.length) {
         setCurrent((prev) => prev + 1);
       } else {
@@ -63,7 +59,7 @@ function Quiz() {
 
   if (quizQuestions.length === 0) {
     return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
+      <div style={{ padding: 20, textAlign: "center" }}>
         <h2>No quiz data available</h2>
         <button onClick={() => navigate("/dashboard")}>
           Back to Dashboard
@@ -88,7 +84,9 @@ function Quiz() {
         <p>
           Your score: {score}/{quizQuestions.length}
         </p>
-        <button onClick={() => navigate("/dashboard")}>Back to Dashboard</button>
+        <button onClick={() => navigate("/dashboard")}>
+          Back to Dashboard
+        </button>
       </div>
     );
   }
@@ -98,25 +96,23 @@ function Quiz() {
   return (
     <div
       style={{
-        padding: "20px",
+        padding: 20,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        width: "100%",
       }}
     >
-      <div style={{ width: "100%", maxWidth: "600px", textAlign: "center" }}>
-        <div style={{ marginBottom: "20px" }}>
+      <div style={{ maxWidth: 600, width: "100%", textAlign: "center" }}>
+        <div style={{ marginBottom: 20 }}>
           <p>
             Question {current + 1} out of {quizQuestions.length}
           </p>
           <div
             style={{
-              height: "10px",
-              width: "100%",
+              height: 10,
               background: "#eee",
-              borderRadius: "5px",
+              borderRadius: 5,
               overflow: "hidden",
             }}
           >
@@ -132,9 +128,9 @@ function Quiz() {
         </div>
 
         <QuizCard
-          question={quizQuestions[current]?.question || ""}
-          options={quizQuestions[current]?.options || []}
-          answer={quizQuestions[current]?.answer}
+          question={quizQuestions[current].question}
+          options={quizQuestions[current].options}
+          answer={quizQuestions[current].answer}
           selected={selected}
           showAnswer={showAnswer}
           onAnswer={handleAnswer}
@@ -143,12 +139,12 @@ function Quiz() {
         <button
           onClick={handleExit}
           style={{
-            marginTop: "20px",
+            marginTop: 20,
             background: "red",
             color: "white",
             padding: "8px 16px",
             border: "none",
-            borderRadius: "6px",
+            borderRadius: 6,
           }}
         >
           Exit Quiz
