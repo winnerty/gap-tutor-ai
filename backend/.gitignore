@@ -3,3 +3,4 @@ __pycache__/
 *.db
 app/upd.py
 app/del.py
+*.gguf

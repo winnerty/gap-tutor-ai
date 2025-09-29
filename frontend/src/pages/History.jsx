@@ -90,7 +90,7 @@ function History() {
         <ul>
           {history.map((h, i) => (
             <li key={i}>
-              {new Date(h.date).toLocaleString()} {h.subject}: {h.score}/5
+              {new Date(h.date).toLocaleString()} <strong>{h.subject}</strong>: {h.score}/5
             </li>
           ))}
         </ul>

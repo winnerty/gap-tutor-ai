@@ -5,7 +5,7 @@ import json, re, traceback
 
 router = APIRouter()
 
-MODEL_PATH = "C:/Users/Timofey/coding/gap-tutor-ai/frontend/models"
+MODEL_PATH = "C:/Users/Timofey/coding/gap-tutor-ai/backend/models" # adjust as needed
 MODEL_NAME = "Phi-3-mini-4k-instruct.Q4_0.gguf"
 
 try:
