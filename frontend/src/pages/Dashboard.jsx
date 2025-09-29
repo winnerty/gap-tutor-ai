@@ -8,12 +8,7 @@ function Dashboard() {
 
   const [subjects, setSubjects] = useState(() => {
     const saved = localStorage.getItem("subjects");
-    return saved
-      ? JSON.parse(saved)
-      : [
-          { name: "Mathematics — Algebra", level: "Medium" },
-          { name: "Python — Basics", level: "Low" },
-        ];
+    return JSON.parse(saved)
   });
 
   const [newSubject, setNewSubject] = useState("");
@@ -62,7 +57,7 @@ function Dashboard() {
       <div style={{ marginBottom: 20 }}>
         <input
           type="text"
-          placeholder="Subject (e.g. Mathematics)"
+          placeholder="Subject (e.g. Python)"
           value={newSubject}
           onChange={(e) => setNewSubject(e.target.value)}
           style={{
@@ -75,7 +70,7 @@ function Dashboard() {
         />
         <input
           type="text"
-          placeholder="Topic (e.g. Trigonometry)"
+          placeholder="Topic (e.g. Loops)"
           value={newTopic}
           onChange={(e) => setNewTopic(e.target.value)}
           style={{
@@ -92,7 +87,7 @@ function Dashboard() {
             padding: "14px 20px",
             fontSize: "16px",
             borderRadius: "8px",
-            background: "#16a34a",
+            background: "#aca9a9ff",
             color: "white",
             border: "none",
             cursor: "pointer",

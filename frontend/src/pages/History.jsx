@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   BarChart,
   Bar,
   ResponsiveContainer,
+  XAxis,
+  YAxis,
+  LabelList,
 } from "recharts";
 
 function History() {
@@ -53,6 +52,34 @@ function History() {
     );
   }
 
+  const quizzesPerDay = stats ? stats.quizzes_per_day : {};
+  const today = new Date();
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().split("T")[0]; 
+    days.push({
+      date: key,
+      count: quizzesPerDay[key] || 0,
+    });
+  }
+
+  const getColor = (count) => {
+    if (count === 0) return "#eee";
+    if (count === 1) return "#c6f6d5";
+    if (count === 2) return "#68d391";
+    if (count === 3) return "#38a169";
+    return "#22543d";
+  };
+
+  const subjectStats = stats
+    ? Object.entries(stats.avg_scores).map(([s, avg]) => ({
+        subject: s,
+        avg,
+      }))
+    : [];
+
   return (
     <div style={{ padding: 20, flex: 1 }}>
       <h2>History</h2>
@@ -63,7 +90,7 @@ function History() {
         <ul>
           {history.map((h, i) => (
             <li key={i}>
-              {new Date(h.date).toLocaleString()} — {h.subject}: {h.score}
+              {new Date(h.date).toLocaleString()} {h.subject}: {h.score}/5
             </li>
           ))}
         </ul>
@@ -71,37 +98,44 @@ function History() {
 
       {stats && (
         <div style={{ marginTop: 40 }}>
-          <h3>📊 Quiz activity per day</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart
-              data={Object.entries(stats.quizzes_per_day).map(([d, c]) => ({
-                date: d,
-                count: c,
-              }))}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="count" stroke="#2563eb" />
-            </LineChart>
-          </ResponsiveContainer>
+          <h3>📊 Quiz activity (last 30 days)</h3>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(30, 1fr)",
+              gap: "3px",
+              marginTop: "10px",
+            }}
+          >
+            {days.map((d, i) => (
+              <div
+                key={i}
+                title={`${d.date}: ${d.count}`}
+                style={{
+                  width: "15px",
+                  height: "15px",
+                  backgroundColor: getColor(d.count),
+                  borderRadius: "3px",
+                }}
+              />
+            ))}
+          </div>
 
           <h3 style={{ marginTop: 30 }}>📚 Average score per subject</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart
-              data={Object.entries(stats.avg_scores).map(([s, avg]) => ({
-                subject: s,
-                avg,
-              }))}
-            >
+            <BarChart data={subjectStats}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="subject" />
-              <YAxis />
+              <YAxis domain={[0, 5]} allowDecimals={false} />
               <Tooltip />
               <Legend />
-              <Bar dataKey="avg" fill="#16a34a" />
+              <Bar dataKey="avg" fill="#16a34a">
+                <LabelList
+                  dataKey="avg"
+                  position="top"
+                  formatter={(val) => `${val.toFixed(1)}/5`}
+                />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>

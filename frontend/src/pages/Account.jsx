@@ -104,7 +104,7 @@ function Account() {
             padding: "14px 20px",
             fontSize: "16px",
             borderRadius: "8px",
-            background: "#16a34a",
+            background: "#aca9a9ff",
             color: "white",
             border: "none",
             cursor: "pointer",
