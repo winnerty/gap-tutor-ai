@@ -19,6 +19,9 @@
 ```npm install```  
 ```npm run dev```
 
+## Result
+Go to ```localhost:5173```
+
 ---
 
 ## Idea
